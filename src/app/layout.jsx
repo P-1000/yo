@@ -5,9 +5,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <IconProvider>
-          {children}
-        </IconProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <IconProvider>
+            {children}
+          </IconProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

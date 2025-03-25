@@ -29,26 +29,22 @@ export const IconNode = memo(({ data, selected }) => {
   };
 
   // Parse icon data with improved error handling
+  // Optimize the renderIcon function to be more memory efficient
   const renderIcon = () => {
     try {
       if (!icon) {
-        console.warn("No icon data provided");
         return renderDefaultIcon();
       }
       
       if (typeof icon === 'string') {
         if (icon.startsWith('<svg')) {
-          try {
-            return (
-              <div 
-                className="w-full h-full flex items-center justify-center"
-                dangerouslySetInnerHTML={{ __html: icon }} 
-              />
-            );
-          } catch (svgError) {
-            console.error("Error rendering SVG string:", svgError);
-            return renderDefaultIcon();
-          }
+          // For SVG strings, use a more efficient approach
+          return (
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              dangerouslySetInnerHTML={{ __html: icon }} 
+            />
+          );
         } else {
           return (
             <div className="w-full h-full flex items-center justify-center text-sm font-medium">
@@ -57,32 +53,31 @@ export const IconNode = memo(({ data, selected }) => {
           );
         }
       } else if (typeof icon === 'object' && icon !== null) {
-        try {
-          return getIcon(icon.type, icon.name, { 
-            collection: icon.collection,
-            className: "w-5 h-5"
-          });
-        } catch (iconError) {
-          console.error("Error getting icon from provider:", iconError);
-          return renderDefaultIcon();
-        }
+        // Use a more efficient way to get icons
+        return getIcon(icon.type, icon.name, { 
+          collection: icon.collection,
+          className: "w-5 h-5"
+        });
       }
       
       return renderDefaultIcon();
     } catch (error) {
-      console.error("Error rendering icon:", error);
       return renderDefaultIcon();
     }
   };
 
   // Helper function for default icon
-  const renderDefaultIcon = () => (
+  // Memoize the default icon renderer
+  const DefaultIcon = memo(() => (
     <div className="w-full h-full flex items-center justify-center">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
       </svg>
     </div>
-  );
+  ));
+  
+  // Use the memoized component
+  const renderDefaultIcon = () => <DefaultIcon />;
 
   return (
     <>

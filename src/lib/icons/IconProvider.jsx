@@ -60,24 +60,31 @@ export function IconProvider({ children }) {
   }, []);
 
   // Load an iconify library dynamically
+  // In the loadIconLibrary function
   const loadIconLibrary = async (library, collection = null) => {
     try {
       if (library === 'iconify' && collection) {
         if (!libraries.iconify.collections[collection]?.loaded) {
-          // Dynamically import the collection
-          await import(`@iconify-icons/${collection}`);
-          
-          setLibraries(prev => ({
-            ...prev,
-            iconify: {
-              ...prev.iconify,
-              loaded: true,
-              collections: {
-                ...prev.iconify.collections,
-                [collection]: { loaded: true }
+          // Use dynamic import with error handling
+          try {
+            await import(`@iconify-icons/${collection}`);
+            
+            setLibraries(prev => ({
+              ...prev,
+              iconify: {
+                ...prev.iconify,
+                loaded: true,
+                collections: {
+                  ...prev.iconify.collections,
+                  [collection]: { loaded: true }
+                }
               }
-            }
-          }));
+            }));
+            return true;
+          } catch (error) {
+            console.error(`Failed to load icon collection: ${collection}`, error);
+            return false;
+          }
         }
         return true;
       }
